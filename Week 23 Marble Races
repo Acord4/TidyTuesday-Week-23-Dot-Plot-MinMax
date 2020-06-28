@@ -1,0 +1,146 @@
+---
+title: "Week 23 Marble Races"
+author: "Alonso Cordova"
+date: "6/13/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+library(tidyverse)    # for manipulating data
+library(ggplot2)      # for plotting
+library(RColorBrewer) # for color palette
+library(ggrepel)      # for maipulating text placement on plot
+
+```{r libraries}
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(ggrepel)
+```
+
+
+
+
+```{r data}
+marbles <- read_csv('marbles.csv')
+
+dot_df <- marbles %>%  select(team_name, marble_name, track_length_m, avg_time_lap, race)
+dot_df <- dot_df %>%  na.omit(dot_df$avg_time_lap)
+
+# Creating q and r groups
+dot_df_q <- dot_df %>% filter(str_detect(race,'Q'))
+dot_df_r <- dot_df %>% filter(str_detect(race,'R'))
+
+
+```
+
+
+
+
+
+Setting color vectors
+# Note: nb.cols is used to expand past the default 8 cols setting in palettes
+```{r palette}
+set.seed(100)
+
+nb.cols <- 18
+mycolors <- colorRampPalette(brewer.pal(8, "Dark2"))(nb.cols)   # Expands palette beyond default 8
+
+```
+
+
+
+
+
+
+Plot R Races
+# Note: Using formula in geom_label_repel to only show min and max label names for each group
+# You can use this in the future to further specify what is show 
+# Possibilities include adding colors or any other aesthetic
+```{r pressure, echo=FALSE}
+
+############ Plot R Races
+pr_test <- ggplot(aes(x=race, y=avg_time_lap, label = team_name, fill = team_name), data=dot_df_r) + 
+  geom_point(data = dot_df_r, aes(x = race, y= avg_time_lap)) + 
+  geom_label_repel(data=dot_df_r %>% 
+                     group_by(race) %>% 
+                     filter(avg_time_lap %in% 
+                              max(avg_time_lap)|
+                              avg_time_lap %in% min(avg_time_lap)),
+                   direction = 'x',
+                   size = 3, 
+                   arrow = NULL,
+                   force = 1) +
+  scale_fill_manual(values=mycolors)+
+  labs(title = 'Marbula One Season 1: R Races',
+       subtitle = 'Average Lap Time: Min vs Max',
+       x = 'Race ID',
+       y = 'Avg Seconds') +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_line(size = .5),
+    plot.subtitle    = element_text(face = 'bold', size = 12),
+    #  axis.title.y     = element_blank(),
+    axis.text.y      = element_text(face = 'bold'),    
+    #   axis.title.x     = element_blank(),
+    axis.text.x      = element_text(face = 'bold'),
+    axis.ticks.x     = element_blank(),
+    plot.margin      = unit(c(.25, .15 , .25, .15), 'in'),
+   # plot.subtitle = element_text(face = 'plain'),         # doesn't work
+    plot.title = element_text(size=14, face= "bold", colour= "black" ),
+    legend.position  = "none")
+
+pr_test
+
+```
+
+
+
+Plot Q Races
+# Note: Using formula in geom_label_repel to only show min and max label names for each group
+# You can use this in the future to further specify what is show 
+# Possibilities include adding colors or any other aesthetic
+```{r pressure, echo=FALSE}
+
+###########  Plot Q Races
+pq_test <- ggplot(aes(x=race, y=avg_time_lap, label = team_name, fill = team_name), data=dot_df_q) + 
+  geom_point(data = dot_df_q, aes(x = race, y= avg_time_lap)) + 
+  geom_label_repel(data=dot_df_q %>% 
+                     group_by(race) %>% 
+                     filter(avg_time_lap %in% 
+                              max(avg_time_lap)|
+                              avg_time_lap %in% min(avg_time_lap)),
+                   direction = 'x',
+                   size = 3, 
+                   arrow = NULL,
+                   force = 1) +
+  scale_fill_manual(values=mycolors)+
+  labs(title = 'Marbula One Season 1: Q Races',
+       subtitle = 'Average Lap Time: Min vs Max',
+       x = 'Race ID',
+       y = 'Avg Seconds') +
+  theme_bw() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_line(size = .5),
+    plot.subtitle    = element_text(face = 'bold', size = 12),
+    #  axis.title.y     = element_blank(),
+    axis.text.y      = element_text(face = 'bold'),    
+    #   axis.title.x     = element_blank(),
+    axis.text.x      = element_text(face = 'bold'),
+    axis.ticks.x     = element_blank(),
+    plot.margin      = unit(c(.25, .15 , .25, .15), 'in'),
+    plot.title = element_text(size=14, face= "bold", colour= "black" ),
+    legend.position  = "none")
+
+pq_test
+```
+
+
+
